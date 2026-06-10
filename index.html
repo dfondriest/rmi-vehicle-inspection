@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle Inspection – Reynolds Machinery</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f1923; color: #e8edf2; min-height: 100vh; }
+
+  .header { background: #162230; border-bottom: 3px solid #e05c2a; padding: 18px 20px 14px; display: flex; align-items: center; gap: 12px; }
+  .header-icon { width: 38px; height: 38px; background: #e05c2a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .header h1 { font-size: 17px; font-weight: 700; letter-spacing: 0.03em; color: #fff; line-height: 1.1; }
+  .header p { font-size: 11px; color: #7a9bb5; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  .form-body { padding: 20px 16px 100px; max-width: 520px; margin: 0 auto; }
+
+  .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #e05c2a; margin: 24px 0 10px; }
+
+  .field { margin-bottom: 14px; }
+  .field-label { display: block; font-size: 12px; font-weight: 600; color: #9ab5cb; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.07em; }
+
+  input[type="text"], input[type="number"], input[type="date"], textarea {
+    width: 100%; background: #162230; border: 1.5px solid #243547; border-radius: 8px; color: #e8edf2;
+    font-size: 15px; padding: 11px 13px; outline: none; transition: border-color 0.15s; font-family: inherit; -webkit-appearance: none;
+  }
+  input:focus, textarea:focus { border-color: #e05c2a; }
+  textarea { resize: vertical; min-height: 80px; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .condition-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .cond-btn { background: #162230; border: 1.5px solid #243547; border-radius: 8px; padding: 12px 8px; cursor: pointer; text-align: center; transition: all 0.15s; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; margin-bottom: 2px; }
+  .cond-name { font-size: 13px; font-weight: 700; color: #e8edf2; }
+  .cond-desc { font-size: 10px; color: #7a9bb5; line-height: 1.3; }
+  .cond-btn[data-val="excellent"] .dot { background: #2ec27e; }
+  .cond-btn[data-val="good"] .dot { background: #57a0d3; }
+  .cond-btn[data-val="fair"] .dot { background: #e0a82a; }
+  .cond-btn[data-val="poor"] .dot { background: #e05c2a; }
+  .cond-btn[data-val="excellent"].selected { border-color: #2ec27e; }
+  .cond-btn[data-val="good"].selected { border-color: #57a0d3; }
+  .cond-btn[data-val="fair"].selected { border-color: #e0a82a; }
+  .cond-btn[data-val="poor"].selected { border-color: #e05c2a; }
+
+  .tire-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .tire-btn { background: #162230; border: 1.5px solid #243547; border-radius: 8px; padding: 11px 8px; cursor: pointer; text-align: center; transition: all 0.15s; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .tire-name { font-size: 13px; font-weight: 700; color: #e8edf2; }
+  .tire-desc { font-size: 10px; color: #7a9bb5; line-height: 1.3; }
+  .tire-btn[data-val="New (8-10/32\")"] .dot { background: #2ec27e; }
+  .tire-btn[data-val="Good (6-7/32\")"] .dot { background: #57a0d3; }
+  .tire-btn[data-val="Worn (4-5/32\")"] .dot { background: #e0a82a; }
+  .tire-btn[data-val="Replace (<4/32\")"] .dot { background: #e05c2a; }
+  .tire-btn[data-val="New (8-10/32\")"].selected { border-color: #2ec27e; }
+  .tire-btn[data-val="Good (6-7/32\")"].selected { border-color: #57a0d3; }
+  .tire-btn[data-val="Worn (4-5/32\")"].selected { border-color: #e0a82a; }
+  .tire-btn[data-val="Replace (<4/32\")"].selected { border-color: #e05c2a; }
+
+  .damage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .dmg-check { background: #162230; border: 1.5px solid #243547; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: border-color 0.15s; user-select: none; }
+  .dmg-box { width: 18px; height: 18px; border-radius: 4px; border: 2px solid #3a5268; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.12s; font-size: 11px; color: transparent; }
+  .dmg-check.checked { border-color: #e05c2a; }
+  .dmg-check.checked .dmg-box { background: #e05c2a; border-color: #e05c2a; color: #fff; }
+  .dmg-label { font-size: 12px; color: #c2d4e2; font-weight: 500; }
+
+  .submit-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f1923; border-top: 1px solid #1f3145; padding: 12px 16px; }
+  .submit-bar-inner { max-width: 520px; margin: 0 auto; }
+  .submit-btn { width: 100%; background: #e05c2a; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; padding: 15px; cursor: pointer; letter-spacing: 0.04em; font-family: inherit; transition: background 0.15s; }
+  .submit-btn:hover { background: #c94e20; }
+  .submit-btn:disabled { background: #3a5268; color: #6a8fa8; cursor: default; }
+
+  .success-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; padding: 40px 24px; }
+  .success-icon { font-size: 56px; margin-bottom: 16px; }
+  .success-screen h2 { font-size: 22px; font-weight: 700; color: #2ec27e; margin-bottom: 8px; }
+  .success-screen p { color: #7a9bb5; font-size: 14px; line-height: 1.6; }
+  .summary { background: #162230; border-radius: 10px; padding: 16px; margin: 20px 0; width: 100%; text-align: left; font-size: 13px; line-height: 2; color: #c2d4e2; max-width: 480px; }
+  .new-btn { background: none; border: 1.5px solid #e05c2a; color: #e05c2a; border-radius: 8px; padding: 12px 28px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 8px; }
+
+  .error-msg { background: #2a1515; border: 1.5px solid #e05c2a; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #f0a090; margin-top: 10px; display: none; }
+
+  .required { color: #e05c2a; }
+  .hint { font-size: 11px; color: #4a6a82; margin-top: 4px; }
+  .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid #ffffff44; border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">&#128663;</div>
+  <div>
+    <h1>Vehicle Inspection</h1>
+    <p>Reynolds Machinery &middot; Field Tech Report</p>
+  </div>
+</div>
+
+<div id="formView">
+  <div class="form-body">
+
+    <div class="section-label">Tech Info</div>
+    <div class="field">
+      <label class="field-label">Technician Name <span class="required">*</span></label>
+      <input type="text" id="techName" placeholder="First Last" />
+    </div>
+    <div class="two-col">
+      <div class="field">
+        <label class="field-label">Date <span class="required">*</span></label>
+        <input type="date" id="inspDate" />
+      </div>
+      <div class="field">
+        <label class="field-label">Vehicle ID / Unit #</label>
+        <input type="text" id="vehicleId" placeholder="e.g. RMI-04" />
+      </div>
+    </div>
+
+    <div class="section-label">Mileage</div>
+    <div class="field">
+      <label class="field-label">Current Odometer <span class="required">*</span></label>
+      <input type="number" id="odometer" placeholder="87450" min="0" />
+      <div class="hint">miles</div>
+    </div>
+
+    <div class="section-label">Overall Condition <span class="required">*</span></div>
+    <div class="condition-grid">
+      <div class="cond-btn" data-val="excellent" onclick="selectCond(this)">
+        <div class="dot"></div>
+        <div class="cond-name">Excellent</div>
+        <div class="cond-desc">No issues, clean &amp; ready</div>
+      </div>
+      <div class="cond-btn" data-val="good" onclick="selectCond(this)">
+        <div class="dot"></div>
+        <div class="cond-name">Good</div>
+        <div class="cond-desc">Minor wear, no action needed</div>
+      </div>
+      <div class="cond-btn" data-val="fair" onclick="selectCond(this)">
+        <div class="dot"></div>
+        <div class="cond-name">Fair</div>
+        <div class="cond-desc">Needs attention soon</div>
+      </div>
+      <div class="cond-btn" data-val="poor" onclick="selectCond(this)">
+        <div class="dot"></div>
+        <div class="cond-name">Poor</div>
+        <div class="cond-desc">Immediate service required</div>
+      </div>
+    </div>
+
+    <div class="section-label">Tire Tread <span class="required">*</span></div>
+    <div class="tire-grid">
+      <div class="tire-btn" data-val="New (8-10/32&quot;)" onclick="selectTire(this)">
+        <div class="dot" style="background:#2ec27e"></div>
+        <div class="tire-name">New</div>
+        <div class="tire-desc">8–10/32&quot;</div>
+      </div>
+      <div class="tire-btn" data-val="Good (6-7/32&quot;)" onclick="selectTire(this)">
+        <div class="dot" style="background:#57a0d3"></div>
+        <div class="tire-name">Good</div>
+        <div class="tire-desc">6–7/32&quot;</div>
+      </div>
+      <div class="tire-btn" data-val="Worn (4-5/32&quot;)" onclick="selectTire(this)">
+        <div class="dot" style="background:#e0a82a"></div>
+        <div class="tire-name">Worn</div>
+        <div class="tire-desc">4–5/32&quot; — monitor</div>
+      </div>
+      <div class="tire-btn" data-val="Replace (&lt;4/32&quot;)" onclick="selectTire(this)">
+        <div class="dot" style="background:#e05c2a"></div>
+        <div class="tire-name">Replace</div>
+        <div class="tire-desc">&lt;4/32&quot; — urgent</div>
+      </div>
+    </div>
+
+    <div class="section-label">Flag Any Issues</div>
+    <div class="damage-grid">
+      <div class="dmg-check" onclick="toggleDmg(this)" data-val="Body Damage"><div class="dmg-box">&#10003;</div><span class="dmg-label">Body Damage</span></div>
+      <div class="dmg-check" onclick="toggleDmg(this)" data-val="Tire Issue"><div class="dmg-box">&#10003;</div><span class="dmg-label">Tire Issue</span></div>
+      <div class="dmg-check" onclick="toggleDmg(this)" data-val="Warning Light"><div class="dmg-box">&#10003;</div><span class="dmg-label">Warning Light</span></div>
+      <div class="dmg-check" onclick="toggleDmg(this)" data-val="Fluid Low"><div class="dmg-box">&#10003;</div><span class="dmg-label">Fluid Low</span></div>
+      <div class="dmg-check" onclick="toggleDmg(this)" data-val="Windshield Crack"><div class="dmg-box">&#10003;</div><span class="dmg-label">Windshield Crack</span></div>
+      <div class="dmg-check" onclick="toggleDmg(this)" data-val="Interior Damage"><div class="dmg-box">&#10003;</div><span class="dmg-label">Interior Damage</span></div>
+    </div>
+
+    <div class="section-label">Notes</div>
+    <div class="field">
+      <textarea id="notes" placeholder="Describe any issues, damage, or observations..."></textarea>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+  </div>
+
+  <div class="submit-bar">
+    <div class="submit-bar-inner">
+      <button class="submit-btn" id="submitBtn" onclick="submitForm()">Submit Inspection</button>
+    </div>
+  </div>
+</div>
+
+<div class="success-screen" id="successView">
+  <div class="success-icon">&#9989;</div>
+  <h2>Inspection Submitted</h2>
+  <p>Logged to Reynolds Machinery records.</p>
+  <div class="summary" id="summaryBox"></div>
+  <button class="new-btn" onclick="resetForm()">New Inspection</button>
+</div>
+
+<script>
+  var selectedCond = '';
+  var selectedTire = '';
+  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0NWrfeJqg6sQ52qxrO1i0lyWiyUh0wzTL0eMzqBC6Ym-PH9aIt27OYc8-5valHfx7Hg/exec';
+
+  document.getElementById('inspDate').valueAsDate = new Date();
+
+  function selectCond(el) {
+    document.querySelectorAll('.cond-btn').forEach(function(b) { b.classList.remove('selected'); });
+    el.classList.add('selected');
+    selectedCond = el.dataset.val;
+  }
+
+  function selectTire(el) {
+    document.querySelectorAll('.tire-btn').forEach(function(b) { b.classList.remove('selected'); });
+    el.classList.add('selected');
+    selectedTire = el.dataset.val;
+  }
+
+  function toggleDmg(el) { el.classList.toggle('checked'); }
+
+  function getCheckedIssues() {
+    var issues = [];
+    document.querySelectorAll('.dmg-check.checked').forEach(function(el) { issues.push(el.dataset.val); });
+    return issues;
+  }
+
+  function submitForm() {
+    var name = document.getElementById('techName').value.trim();
+    var date = document.getElementById('inspDate').value;
+    var odo  = document.getElementById('odometer').value.trim();
+    var errEl = document.getElementById('errorMsg');
+    errEl.style.display = 'none';
+
+    if (!name || !date || !odo || !selectedCond || !selectedTire) {
+      errEl.textContent = 'Please fill in: Technician Name, Date, Odometer, Overall Condition, and Tire Tread.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    var issues = getCheckedIssues();
+    var notes  = document.getElementById('notes').value.trim();
+    var vehicle = document.getElementById('vehicleId').value.trim() || '—';
+
+    var payload = {
+      techName:  name,
+      date:      date,
+      vehicleId: vehicle,
+      odometer:  parseInt(odo),
+      condition: selectedCond.charAt(0).toUpperCase() + selectedCond.slice(1),
+      tireTread: selectedTire,
+      issues:    issues.join(', '),
+      notes:     notes
+    };
+
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Submitting...';
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function() {
+      var lines = [
+        '<strong>Tech:</strong> ' + name,
+        '<strong>Date:</strong> ' + date,
+        '<strong>Vehicle:</strong> ' + vehicle,
+        '<strong>Odometer:</strong> ' + parseInt(odo).toLocaleString() + ' mi',
+        '<strong>Condition:</strong> ' + payload.condition,
+        '<strong>Tire Tread:</strong> ' + selectedTire,
+        issues.length ? '<strong>Issues:</strong> ' + issues.join(', ') : null,
+        notes ? '<strong>Notes:</strong> ' + notes : null
+      ].filter(Boolean).join('<br>');
+
+      document.getElementById('summaryBox').innerHTML = lines;
+      document.getElementById('formView').style.display = 'none';
+      document.getElementById('successView').style.display = 'flex';
+    })
+    .catch(function(err) {
+      errEl.textContent = 'Submission failed. Check your connection and try again.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.innerHTML = 'Submit Inspection';
+    });
+  }
+
+  function resetForm() {
+    document.getElementById('techName').value = '';
+    document.getElementById('vehicleId').value = '';
+    document.getElementById('odometer').value = '';
+    document.getElementById('notes').value = '';
+    document.getElementById('inspDate').valueAsDate = new Date();
+    document.querySelectorAll('.cond-btn').forEach(function(b) { b.classList.remove('selected'); });
+    document.querySelectorAll('.tire-btn').forEach(function(b) { b.classList.remove('selected'); });
+    document.querySelectorAll('.dmg-check').forEach(function(b) { b.classList.remove('checked'); });
+    document.getElementById('errorMsg').style.display = 'none';
+    selectedCond = '';
+    selectedTire = '';
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = false;
+    btn.innerHTML = 'Submit Inspection';
+    document.getElementById('successView').style.display = 'none';
+    document.getElementById('formView').style.display = 'block';
+  }
+</script>
+</body>
+</html>
